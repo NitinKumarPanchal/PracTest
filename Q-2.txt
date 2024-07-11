@@ -1,0 +1,109 @@
+CREATE TABLE Brands (
+    Brand VARCHAR(50),
+    Fixed_Commission INT,
+    Min_Price DECIMAL(18, 2),
+    Class_A_Commission DECIMAL(5, 2),
+    Class_B_Commission DECIMAL(5, 2),
+    Class_C_Commission DECIMAL(5, 2)
+);
+
+CREATE TABLE Sales (
+    Salesman VARCHAR(50),
+    Class CHAR(1),
+    Audi INT,
+    Jaguar INT,
+    Land_Rover INT,
+    Renault INT
+);
+
+CREATE TABLE PreviousYearSales (
+    Salesman VARCHAR(50),
+    Last_Year_Total_Sale DECIMAL(18, 2)
+);
+
+
+
+
+
+
+INSERT INTO Brands VALUES ('Audi', 800, 25000, 8, 6, 4);
+INSERT INTO Brands VALUES ('Jaguar', 750, 35000, 6, 5, 3);
+INSERT INTO Brands VALUES ('Land Rover', 850, 30000, 7, 5, 4);
+INSERT INTO Brands VALUES ('Renault', 400, 20000, 5, 3, 2);
+
+INSERT INTO Sales VALUES ('Salesman 1', 'A', 1, 3, 0, 6);
+INSERT INTO Sales VALUES ('Salesman 1', 'B', 2, 4, 2, 2);
+INSERT INTO Sales VALUES ('Salesman 1', 'C', 3, 6, 1, 1);
+INSERT INTO Sales VALUES ('Salesman 2', 'A', 0, 5, 5, 3);
+INSERT INTO Sales VALUES ('Salesman 2', 'B', 0, 4, 2, 2);
+INSERT INTO Sales VALUES ('Salesman 2', 'C', 0, 2, 1, 1);
+INSERT INTO Sales VALUES ('Salesman 3', 'A', 4, 2, 1, 6);
+INSERT INTO Sales VALUES ('Salesman 3', 'B', 2, 7, 2, 3);
+INSERT INTO Sales VALUES ('Salesman 3', 'C', 0, 1, 3, 1);
+
+INSERT INTO PreviousYearSales VALUES ('Salesman 1', 490000);
+INSERT INTO PreviousYearSales VALUES ('Salesman 2', 1000000);
+INSERT INTO PreviousYearSales VALUES ('Salesman 3', 650000);
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+ANS:-
+
+WITH SalesWithCommission AS (
+    SELECT 
+        s.Salesman,
+        s.Class,
+        b.Brand,
+        b.Fixed_Commission,
+        b.Class_A_Commission,
+        b.Class_B_Commission,
+        b.Class_C_Commission,
+        s.Audi,
+        s.Jaguar,
+        s.Land_Rover,
+        s.Renault,
+        CASE 
+            WHEN s.Class = 'A' THEN b.Class_A_Commission
+            WHEN s.Class = 'B' THEN b.Class_B_Commission
+            WHEN s.Class = 'C' THEN b.Class_C_Commission
+        END AS Variable_Commission
+    FROM Sales s
+    JOIN Brands b ON 
+        (b.Brand = 'Audi' AND s.Audi > 0) OR
+        (b.Brand = 'Jaguar' AND s.Jaguar > 0) OR
+        (b.Brand = 'Land Rover' AND s.Land_Rover > 0) OR
+        (b.Brand = 'Renault' AND s.Renault > 0)
+),
+CommissionReport AS (
+    SELECT 
+        s.Salesman,
+        SUM(
+            s.Fixed_Commission * (s.Audi + s.Jaguar + s.Land_Rover + s.Renault)
+            + s.Variable_Commission * 
+                CASE 
+                    WHEN s.Brand = 'Audi' THEN s.Audi
+                    WHEN s.Brand = 'Jaguar' THEN s.Jaguar
+                    WHEN s.Brand = 'Land Rover' THEN s.Land_Rover
+                    WHEN s.Brand = 'Renault' THEN s.Renault
+                END * b.Min_Price / 100
+        ) AS Total_Commission
+    FROM SalesWithCommission s
+    JOIN Brands b ON s.Brand = b.Brand
+    GROUP BY s.Salesman
+),
+FinalCommissionReport AS (
+    SELECT 
+        c.Salesman,
+        CASE 
+            WHEN p.Last_Year_Total_Sale > 500000 THEN 
+                c.Total_Commission + (0.02 * c.Total_Commission)
+            ELSE c.Total_Commission
+        END AS Final_Commission
+    FROM CommissionReport c
+    LEFT JOIN PreviousYearSales p ON c.Salesman = p.Salesman
+)
+SELECT * FROM FinalCommissionReport;

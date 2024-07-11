@@ -1,0 +1,47 @@
+Create table Car(      
+    Id int IDENTITY(1,1) NOT NULL,      
+    brand varchar(20) NOT NULL,      
+    classname varchar(20) NOT NULL,      
+    modelname varchar(20) NOT NULL, 
+	modelcode int NOT NULL,     
+	description varchar(2000) NOT NULL,      
+    features varchar(2000) NOT NULL, 
+	price int NOT NULL,      
+    dom varchar(20) NOT NULL,    
+    active bit NOT NULL,
+	sortorder int NOT NULL
+)   
+
+
+select * from Car
+
+INSERT INTO Car VALUES ('Audi', 'A-Class','BE345', 656656, 'Test', 'Test',25000000,'26/062024', 1, 4);
+
+
+Create procedure spGetAllCars     
+as      
+Begin      
+    select *      
+    from Car   
+    order by id       
+End
+
+Create procedure spAddCar         
+(        
+    @brand VARCHAR(20),         
+    @classname VARCHAR(20),        
+    @modelname VARCHAR(20),        
+    @modelcode INTEGER,
+	@description VARCHAR(20),         
+    @features VARCHAR(20),        
+    @price INTEGER,        
+    @dom VARCHAR(6),
+	@active Bit,         
+    @sortorder INTEGER        
+   
+)        
+as         
+Begin         
+    Insert into Car (brand,classname,modelname, modelcode,description,features,price, dom, active, sortorder)         
+    Values (@brand,@classname,@modelname, @modelcode,@description,@features,@price, @dom,@active,@sortorder)         
+End 

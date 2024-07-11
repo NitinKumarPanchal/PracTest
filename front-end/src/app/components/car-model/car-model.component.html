@@ -1,0 +1,241 @@
+<ng-container *ngIf="!isShowGrid">
+  <div class="register-form">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Brand Name</label>
+        <select
+          formControlName="brand"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['brand'].errors }"
+        >
+          <option value="Audi">Audi</option>
+          <option value="Jaguar">Jaguar</option>
+          <option value="Land Rover">Land Rover</option>
+          <option value="Renault">Renault</option>
+        </select>
+        <div *ngIf="submitted && f['brand'].errors" class="invalid-feedback">
+          <div *ngIf="f['brand'].errors['required']">Brand is required</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Class Name</label>
+        <select
+          formControlName="classname"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['classname'].errors }"
+        >
+          <option value="A-Class">A-Class</option>
+          <option value="B-Class">B-Class</option>
+          <option value="C-Class">C-Class</option>
+        </select>
+        <div
+          *ngIf="submitted && f['classname'].errors"
+          class="invalid-feedback"
+        >
+          <div *ngIf="f['classname'].errors['required']">
+            Class Name is required
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Model</label>
+        <input
+          type="text"
+          formControlName="modelname"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['modelname'].errors }"
+        />
+        <div
+          *ngIf="submitted && f['modelname'].errors"
+          class="invalid-feedback"
+        >
+          <div *ngIf="f['modelname'].errors['required']">
+            Model Name is required
+          </div>
+          <div *ngIf="f['modelname'].errors['modelname']">
+            Model Name invalid
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Model Code</label>
+        <input
+          type="number"
+          max="10"
+          formControlName="modelcode"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['modelcode'].errors }"
+        />
+        <div
+          *ngIf="submitted && f['modelcode'].errors"
+          class="invalid-feedback"
+        >
+          <div *ngIf="f['modelcode'].errors['required']">
+            Model code is required
+          </div>
+          <div *ngIf="f['modelcode'].errors['modelname']">
+            Model code is invalid
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <ckeditor
+          [editor]="DEditor"
+          [data]="editorContent"
+          (change)="onChange($event, 'DEditor')"
+          [ngClass]="{ 'is-invalid': submitted || f['description'].errors }"
+        ></ckeditor>
+        <div
+          *ngIf="submitted && f['description'].errors"
+          class="invalid-feedback"
+        >
+          <div *ngIf="f['description'].errors['required']">
+            Description is required
+          </div>
+          <div *ngIf="f['description'].errors['description']">
+            Description invalid
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Features</label>
+        <ckeditor
+          [ngClass]="{ 'is-invalid': submitted || f['features'].errors }"
+          [editor]="FEditor"
+          [data]="editorContent"
+          (change)="onChange($event, 'FEditor')"
+        ></ckeditor>
+        <div *ngIf="submitted && f['features'].errors" class="invalid-feedback">
+          <div *ngIf="f['features'].errors['required']">
+            Features is required
+          </div>
+          <div *ngIf="f['features'].errors['features']">Features invalid</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Price</label>
+        <input
+          type="text"
+          formControlName="price"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['price'].errors }"
+        />
+        <div *ngIf="submitted && f['price'].errors" class="invalid-feedback">
+          <div *ngIf="f['price'].errors['required']">
+            Model Name is required
+          </div>
+          <div *ngIf="f['price'].errors['price']">Model Name invalid</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Date of Manufacturing</label>
+        <input
+          type="date"
+          formControlName="dom"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['dom'].errors }"
+        />
+        <div *ngIf="submitted && f['dom'].errors" class="invalid-feedback">
+          <div *ngIf="f['dom'].errors['required']">Date is required</div>
+          <div *ngIf="f['dom'].errors['dom']">Date invalid</div>
+        </div>
+      </div>
+
+      <div class="form-group form-check">
+        <input
+          type="checkbox"
+          formControlName="active"
+          class="form-check-input"
+          [(ngModel)]="isChecked"
+        />
+        <label for="active" class="form-check-label">Is Active</label>
+      </div>
+      <div class="form-group">
+        <label>Sort order</label>
+        <input
+          type="number"
+          min="1"
+          max="5"
+          value="1"
+          formControlName="sortorder"
+          class="form-control"
+        />
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Register</button>
+      </div>
+    </form>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="isShowGrid">
+  <button
+    type="button"
+    class="btn btn-primary mb-2 mt-2"
+    (click)="AddNewRecord()"
+  >
+    Add
+  </button>
+  <input
+    type="text"
+    formControlName="modelname"
+    class="form-control"
+    [ngClass]="{ 'is-invalid': submitted && f['modelname'].errors }"
+  />
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <ng-container matColumnDef="brand">
+      <th mat-header-cell *matHeaderCellDef>Brand</th>
+      <td mat-cell *matCellDef="let element">{{ element.brand }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="classname">
+      <th mat-header-cell *matHeaderCellDef>Class Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.classname }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="modelname">
+      <th mat-header-cell *matHeaderCellDef>Model Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.modelname }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="modelcode">
+      <th mat-header-cell *matHeaderCellDef>Model Code</th>
+      <td mat-cell *matCellDef="let element">{{ element.modelcode }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let element">{{ element.description }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="features">
+      <th mat-header-cell *matHeaderCellDef>Features</th>
+      <td mat-cell *matCellDef="let element">{{ element.features }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="price">
+      <th mat-header-cell *matHeaderCellDef>Price</th>
+      <td mat-cell *matCellDef="let element">{{ element.price }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="dom">
+      <th mat-header-cell *matHeaderCellDef>Date of Manufacture</th>
+      <td mat-cell *matCellDef="let element">{{ element.dom }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="active">
+      <th mat-header-cell *matHeaderCellDef>Active</th>
+      <td mat-cell *matCellDef="let element">{{ element.active }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="sortorder">
+      <th mat-header-cell *matHeaderCellDef>Sort Order</th>
+      <td mat-cell *matCellDef="let element">{{ element.sortorder }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</ng-container>
